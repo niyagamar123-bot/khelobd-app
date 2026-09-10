@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KheloBD - লুডু টুর্নামেন্ট</title>
+<style>
+body{font-family:sans-serif;background:#f5f5f5;margin:0;padding:20px}
+.container{max-width:500px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+h1{text-align:center;color:#25D366}
+.btn{width:100%;padding:12px;margin:8px 0;border:none;border-radius:8px;background:#25D366;color:white;font-size:16px;cursor:pointer}
+input{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.tournament{border:1px solid #ddd;padding:12px;margin:10px 0;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>KheloBD</h1>
+<div id="loginBox">
+<h3>লগইন করুন</h3>
+<input type="text" id="playerName" placeholder="আপনার নাম">
+<input type="text" id="playerPhone" placeholder="ফোন নম্বর">
+<button class="btn" onclick="login()">Login</button>
+</div>
+
+<div id="gameBox" style="display:none">
+<h3>স্বাগতম <span id="userName"></span></h3>
+<button class="btn" onclick="window.location.href='wallet.html'">💰 Wallet</button>
+<button class="btn" onclick="window.location.href='admin.html'">👑 Admin</button>
+<h3>চলমান টুর্নামেন্ট</h3>
+<div id="tournamentList"></div>
+</div>
+</div>
+
+<script>
+let currentUser = localStorage.getItem('kheloUser');
+let tournaments = JSON.parse(localStorage.getItem('tournaments')) || [];
+
+function login(){
+let name = document.getElementById('playerName').value;
+let phone = document.getElementById('playerPhone').value;
+if(name && phone){
+localStorage.setItem('kheloUser', JSON.stringify({name, phone, balance:0}));
+location.reload();
+}
+}
+
+function loadTournaments(){
+let list = document.getElementById('tournamentList');
+if(tournaments.length === 0){
+list.innerHTML = '<p>এখনো কোন টুর্নামেন্ট নাই</p>';
+return;
+}
+list.innerHTML = tournaments.map((t,i)=>`
+<div class="tournament">
+<b>${t.name}</b><br>
+Entry: ${t.fee} টাকা | Prize: ${t.prize} টাকা<br>
+Players: ${t.players.length}/${t.maxPlayers}
+<button class="btn" onclick="joinTournament(${i})">Join</button>
+</div>
+`).join('');
+}
+
+function joinTournament(i){
+let user = JSON.parse(localStorage.getItem('kheloUser'));
+if(user.balance < tournaments[i].fee){
+alert('Wallet এ টাকা নাই। আগে Wallet এ টাকা ভরুন');
+return;
+}
+user.balance -= tournaments[i].fee;
+tournaments[i].players.push(user.name);
+localStorage.setItem('kheloUser', JSON.stringify(user));
+localStorage.setItem('tournaments', JSON.stringify(tournaments));
+alert('Join হয়ে গেছে!');
+loadTournaments();
+}
+
+if(currentUser){
+document.getElementById('loginBox').style.display='none';
+document.getElementById('gameBox').style.display='block';
+document.getElementById('userName').innerText = JSON.parse(currentUser).name;
+loadTournaments();
+}
+</script>
+</body>
+</html>
