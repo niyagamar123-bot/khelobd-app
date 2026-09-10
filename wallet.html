@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KheloBD Wallet</title>
+<style>
+body{font-family:sans-serif;background:#f5f5f5;margin:0;padding:20px}
+.container{max-width:500px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+h1{text-align:center;color:#25D366}
+.btn{width:100%;padding:12px;margin:8px 0;border:none;border-radius:8px;background:#25D366;color:white;font-size:16px;cursor:pointer}
+input{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>💰 Wallet</h1>
+<h3>Current Balance: <span id="balance">0</span> টাকা</h3>
+
+<h3>টাকা জমা দিন</h3>
+<input type="number" id="topupAmount" placeholder="কত টাকা">
+<input type="text" id="trxid" placeholder="বিকাশ/নগদ TrxID">
+<button class="btn" onclick="requestTopup()">Topup Request</button>
+
+<h3>টাকা উইথড্র</h3>
+<input type="number" id="withdrawAmount" placeholder="কত টাকা">
+<input type="text" id="withdrawNumber" placeholder="বিকাশ/নগদ নম্বর">
+<button class="btn" onclick="requestWithdraw()">Withdraw Request</button>
+
+<button class="btn" style="background:gray" onclick="window.location.href='index.html'">Back</button>
+</div>
+
+<script>
+let user = JSON.parse(localStorage.getItem('kheloUser'));
+let requests = JSON.parse(localStorage.getItem('requests')) || {topup:[], withdraw:[]};
+
+document.getElementById('balance').innerText = user.balance;
+
+function requestTopup(){
+let amount = document.getElementById('topupAmount').value;
+let trx = document.getElementById('trxid').value;
+if(amount && trx){
+requests.topup.push({name:user.name, phone:user.phone, amount, trx, status:'pending'});
+localStorage.setItem('requests', JSON.stringify(requests));
+alert('Topup Request পাঠানো হয়েছে। Admin Approve করলে টাকা যোগ হবে');
+}
+}
+
+function requestWithdraw(){
+let amount = document.getElementById('withdrawAmount').value;
+let num = document.getElementById('withdrawNumber').value;
+if(amount && num){
+if(user.balance < amount){alert('Balance নাই'); return;}
+requests.withdraw.push({name:user.name, phone:user.phone, amount, num, status:'pending'});
+localStorage.setItem('requests', JSON.stringify(requests));
+alert('Withdraw Request পাঠানো হয়েছে');
+}
+}
+</script>
+</body>
+</html>
