@@ -1,95 +1,2134 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KheloBD Admin</title>
-<style>
-body{font-family:sans-serif;background:#f5f5f5;margin:0;padding:20px}
-.container{max-width:600px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-h1{text-align:center;color:red}
-.btn{padding:10px 15px;margin:5px;border:none;border-radius:8px;background:#25D366;color:white;cursor:pointer}
-.btn-red{background:red}
-input{padding:8px;margin:5px;border:1px solid #ddd;border-radius:8px}
-.request{border:1px solid #ddd;padding:10px;margin:8px 0;border-radius:8px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin - KheloBD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #4a42b3;
+            --primary-glow: rgba(108, 99, 255, 0.3);
+            --bg-dark: #08080e;
+            --bg-card: rgba(20, 20, 35, 0.92);
+            --bg-input: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.06);
+            --text-main: #ffffff;
+            --text-muted: #8892b0;
+            --success: #00d4aa;
+            --danger: #ff5e7a;
+            --warning: #ffd93d;
+            --info: #4fc3f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        body {
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(108, 99, 255, 0.03) 0%, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .admin-header {
+            background: rgba(8, 8, 14, 0.95);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-logo {
+            font-weight: 800;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 94, 122, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--danger);
+            transition: 0.3s;
+            border: 1px solid rgba(255, 94, 122, 0.1);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 94, 122, 0.25);
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+            animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1a1040, #2a1a60);
+            padding: 28px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat-val {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 13px;
+            opacity: 0.7;
+            font-weight: 600;
+            margin-top: 4px;
+            color: var(--text-muted);
+        }
+
+        .grid-section-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin: 24px 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .dash-item {
+            background: var(--bg-card);
+            padding: 22px;
+            border-radius: 18px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .dash-item:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .dash-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .dash-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .flat-card {
+            background: var(--bg-card);
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: 0.2s;
+        }
+
+        .fc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .fc-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .fc-tag {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-yellow { background: rgba(255, 217, 61, 0.12); color: var(--warning); border: 1px solid rgba(255, 217, 61, 0.15); }
+        .tag-green { background: rgba(0, 212, 170, 0.12); color: var(--success); border: 1px solid rgba(0, 212, 170, 0.15); }
+        .tag-blue { background: rgba(79, 195, 247, 0.12); color: var(--info); border: 1px solid rgba(79, 195, 247, 0.15); }
+        .tag-purple { background: rgba(108, 99, 255, 0.12); color: var(--primary); border: 1px solid rgba(108, 99, 255, 0.15); }
+
+        .fc-detail {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fc-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .fc-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .fc-actions.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .btn {
+            padding: 11px 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .btn-danger {
+            background: rgba(255, 94, 122, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(255, 94, 122, 0.15);
+        }
+
+        .btn-success {
+            background: rgba(0, 212, 170, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(0, 212, 170, 0.15);
+        }
+
+        .btn-warning {
+            background: rgba(255, 217, 61, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(255, 217, 61, 0.15);
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 13px 16px;
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        select.form-input option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 6px 0;
+            transition: 0.2s;
+        }
+
+        .back-nav:hover { color: #fff; }
+        .back-nav:active { opacity: 0.6; }
+
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pin-title {
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 4px;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid var(--border);
+            transition: 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pin-dot.filled {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            transform: scale(1.15);
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 20px;
+        }
+
+        .num-key {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.12s;
+            border: 1px solid var(--border);
+        }
+
+        .num-key:active {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(0.9);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #fff;
+            box-shadow: 0 8px 30px var(--primary-glow);
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 90;
+        }
+
+        .fab:active { transform: scale(0.88) rotate(90deg); }
+
+        .withdraw-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
+            color: #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .search-input {
+            padding-left: 46px;
+            border-radius: 30px;
+        }
+
+        .swal2-popup {
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 16px !important;
+        }
+
+        .swal2-title {
+            color: #fff !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+
+        .swal2-html-container {
+            color: var(--text-muted) !important;
+        }
+
+        .swal2-input,
+        .swal2-textarea,
+        .swal2-select {
+            background: var(--bg-input) !important;
+            border: 1px solid var(--border) !important;
+            color: #fff !important;
+            border-radius: 10px !important;
+        }
+
+        .swal2-confirm {
+            background: var(--primary) !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 20px var(--primary-glow) !important;
+        }
+
+        .swal2-cancel {
+            background: rgba(255, 94, 122, 0.1) !important;
+            color: var(--danger) !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+        }
+
+        .participant-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .participant-row:last-child { border-bottom: none; }
+
+        .participant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .participant-number {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 12px;
+            min-width: 24px;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .participant-ign {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .winner-badge {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            color: #000;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-sm:active { transform: scale(0.94); }
+
+        .btn-sm-success {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(0, 212, 170, 0.15);
+        }
+
+        .btn-sm-danger {
+            background: rgba(255, 94, 122, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 94, 122, 0.15);
+        }
+
+        .btn-sm-warning {
+            background: rgba(255, 217, 61, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(255, 217, 61, 0.15);
+        }
+
+        .cat-card-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cat-img {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+        }
+
+        .cat-info {
+            flex: 1;
+        }
+
+        .cat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: rgba(255, 217, 61, 0.12); color: var(--warning); border: 1px solid rgba(255, 217, 61, 0.15); }
+        .status-approved { background: rgba(0, 212, 170, 0.12); color: var(--success); border: 1px solid rgba(0, 212, 170, 0.15); }
+        .status-rejected { background: rgba(255, 94, 122, 0.12); color: var(--danger); border: 1px solid rgba(255, 94, 122, 0.15); }
+
+        .order-uid-badge {
+            background: rgba(79, 195, 247, 0.12);
+            color: var(--info);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(79, 195, 247, 0.15);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: #333;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-switch .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            left: 24px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>👑 Admin Panel</h1>
 
-<div id="login">
-<input type="password" id="pin" placeholder="Admin PIN">
-<button class="btn" onclick="adminLogin()">Login</button>
-</div>
+    <!-- AUTH -->
+    <div id="auth-overlay">
+        <div class="pin-title">🔐 Security Access</div>
+        <div class="pin-dots" id="pin-dots">
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+        </div>
+        <div class="numpad">
+            <div class="num-key" onclick="typePin(1)">1</div>
+            <div class="num-key" onclick="typePin(2)">2</div>
+            <div class="num-key" onclick="typePin(3)">3</div>
+            <div class="num-key" onclick="typePin(4)">4</div>
+            <div class="num-key" onclick="typePin(5)">5</div>
+            <div class="num-key" onclick="typePin(6)">6</div>
+            <div class="num-key" onclick="typePin(7)">7</div>
+            <div class="num-key" onclick="typePin(8)">8</div>
+            <div class="num-key" onclick="typePin(9)">9</div>
+            <div class="num-key" style="background:transparent; border:none; cursor:default;"></div>
+            <div class="num-key" onclick="typePin(0)">0</div>
+            <div class="num-key" onclick="delPin()" style="color:var(--danger)"><i class="fas fa-backspace" style="font-size:18px;"></i></div>
+        </div>
+    </div>
 
-<div id="panel" style="display:none">
-<h3>নতুন টুর্নামেন্ট বানান</h3>
-<input type="text" id="tName" placeholder="টুর্নামেন্ট নাম">
-<input type="number" id="tFee" placeholder="Entry Fee">
-<input type="number" id="tPrize" placeholder="Prize Money">
-<input type="number" id="tMax" placeholder="Max Player">
-<button class="btn" onclick="createTournament()">Create</button>
+    <!-- HEADER -->
+    <div class="admin-header">
+        <div class="admin-logo">
+            <div class="logo-icon"><i class="fas fa-crown"></i></div>
+            KHELO.ADMIN
+        </div>
+        <div class="logout-btn" onclick="location.reload()"><i class="fas fa-power-off"></i></div>
+    </div>
 
-<h3>Topup Request</h3>
-<div id="topupList"></div>
+    <!-- DASHBOARD -->
+    <section id="sec-dashboard" class="section active">
+        <div class="stat-card">
+            <div class="stat-val" id="stat-users">0</div>
+            <div class="stat-lbl">Total Registered Users</div>
+        </div>
 
-<h3>Withdraw Request</h3>
-<div id="withdrawList"></div>
+        <div class="grid-section-title">📊 Core Modules</div>
+        <div class="dash-grid">
+            <div class="dash-item" onclick="navTo('matches')">
+                <div class="dash-icon-box" style="background:rgba(108,99,255,0.12); color:var(--primary);">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="dash-text">Matches</div>
+            </div>
+            <div class="dash-item" onclick="navTo('categories')">
+                <div class="dash-icon-box" style="background:rgba(79,195,247,0.12); color:var(--info);">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="dash-text">Categories</div>
+            </div>
+            <div class="dash-item" onclick="navTo('users')">
+                <div class="dash-icon-box" style="background:rgba(0,212,170,0.12); color:var(--success);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="dash-text">Users</div>
+            </div>
+            <div class="dash-item" onclick="navTo('withdraw')" style="position:relative;">
+                <div class="dash-icon-box" style="background:rgba(255,94,122,0.12); color:var(--danger);">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="dash-text">Withdrawals</div>
+                <div id="withdraw-badge" class="withdraw-badge" style="display:none;">0</div>
+            </div>
+            <div class="dash-item" onclick="navTo('topup')">
+                <div class="dash-icon-box" style="background:rgba(255,217,61,0.12); color:var(--warning);">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <div class="dash-text">Top-Up</div>
+            </div>
+            <div class="dash-item" onclick="navTo('orders')" style="position:relative;">
+                <div class="dash-icon-box" style="background:rgba(79,195,247,0.12); color:var(--info);">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="dash-text">Orders</div>
+                <div id="order-badge" class="withdraw-badge" style="display:none;">0</div>
+            </div>
+        </div>
 
-<button class="btn" style="background:gray" onclick="window.location.href='index.html'">Back</button>
-</div>
-</div>
+        <div class="grid-section-title">⚙️ Configuration</div>
+        <div class="dash-grid">
+            <div class="dash-item" onclick="navTo('settings')">
+                <div class="dash-icon-box" style="background:rgba(255,217,61,0.12); color:var(--warning);">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <div class="dash-text">App Settings</div>
+            </div>
+            <div class="dash-item" onclick="navTo('sliders')">
+                <div class="dash-icon-box" style="background:rgba(79,195,247,0.12); color:var(--info);">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div class="dash-text">Sliders</div>
+            </div>
+            <div class="dash-item" onclick="navTo('notify')">
+                <div class="dash-icon-box" style="background:rgba(200,100,255,0.12); color:#c864ff;">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="dash-text">Notify</div>
+            </div>
+            <div class="dash-item" onclick="changeAdminPinPopup()">
+                <div class="dash-icon-box" style="background:rgba(255,94,122,0.12); color:var(--danger);">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="dash-text">Change PIN</div>
+            </div>
+        </div>
+    </section>
 
-<script>
-let requests = JSON.parse(localStorage.getItem('requests')) || {topup:[], withdraw:[]};
-let tournaments = JSON.parse(localStorage.getItem('tournaments')) || [];
+    <!-- CATEGORIES -->
+    <section id="sec-categories" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="category-list">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading categories...</div>
+        </div>
+        <div class="fab" onclick="addCategory()"><i class="fas fa-plus"></i></div>
+    </section>
 
-function adminLogin(){
-if(document.getElementById('pin').value === 'niyaaz4444'){
-document.getElementById('login').style.display='none';
-document.getElementById('panel').style.display='block';
-loadRequests();
-}else{alert('ভুল PIN')}
-}
+    <!-- MATCHES -->
+    <section id="sec-matches" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="match-list">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading matches...</div>
+        </div>
+        <div class="fab" onclick="createMatchPopup()"><i class="fas fa-plus"></i></div>
+    </section>
 
-function createTournament(){
-let t = {
-name:document.getElementById('tName').value,
-fee:document.getElementById('tFee').value,
-prize:document.getElementById('tPrize').value,
-maxPlayers:document.getElementById('tMax').value,
-players:[]
-};
-tournaments.push(t);
-localStorage.setItem('tournaments', JSON.stringify(tournaments));
-alert('টুর্নামেন্ট বানানো হয়েছে');
-}
+    <!-- USERS -->
+    <section id="sec-users" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="user-search" class="form-input search-input" placeholder="Search user..." onkeyup="filterUsers()">
+        </div>
+        <div class="list-container" id="user-list"></div>
+    </section>
 
-function loadRequests(){
-document.getElementById('topupList').innerHTML = requests.topup.map((r,i)=>`
-<div class="request">${r.name} - ${r.amount} টাকা - Trx: ${r.trx}
-<button class="btn" onclick="approveTopup(${i})">Approve</button></div>`).join('');
+    <!-- WITHDRAW -->
+    <section id="sec-withdraw" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="withdraw-list">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading withdrawal requests...</div>
+        </div>
+    </section>
 
-document.getElementById('withdrawList').innerHTML = requests.withdraw.map((r,i)=>`
-<div class="request">${r.name} - ${r.amount} টাকা - Num: ${r.num}
-<button class="btn btn-red" onclick="approveWithdraw(${i})">Paid</button></div>`).join('');
-}
+    <!-- TOP-UP PACKAGES -->
+    <section id="sec-topup" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="topup-package-list">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading packages...</div>
+        </div>
+        <div class="fab" onclick="addTopUpPackage()"><i class="fas fa-plus"></i></div>
+    </section>
 
-function approveTopup(i){
-let userData = JSON.parse(localStorage.getItem('kheloUser'));
-userData.balance += parseInt(requests.topup[i].amount);
-localStorage.setItem('kheloUser', JSON.stringify(userData));
-requests.topup.splice(i,1);
-localStorage.setItem('requests', JSON.stringify(requests));
-loadRequests();
-}
+    <!-- ORDERS -->
+    <section id="sec-orders" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="order-list">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading orders...</div>
+        </div>
+    </section>
 
-function approveWithdraw(i){
-requests.withdraw.splice(i,1);
-localStorage.setItem('requests', JSON.stringify(requests));
-loadRequests();
-}
-</script>
+    <!-- SETTINGS -->
+    <section id="sec-settings" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        
+        <div class="flat-card">
+            <h4 style="margin-bottom:18px; color:var(--primary); font-weight:800;">🏷️ General Info</h4>
+            <div class="form-group">
+                <label class="form-label">App Name</label>
+                <input type="text" id="set-app-name" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Logo URL</label>
+                <input type="text" id="set-app-logo" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Marquee Notice</label>
+                <textarea id="set-notice" class="form-input" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Startup Popup Text</label>
+                <textarea id="set-popup" class="form-input" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Enable Popup</label>
+                <select id="set-show-popup" class="form-input">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flat-card" style="margin-top:16px;">
+            <h4 style="margin-bottom:18px; color:var(--success); font-weight:800;">💳 Payment Info</h4>
+            <div class="form-group"><label class="form-label">bKash Number</label><input type="text" id="set-bkash" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Nagad Number</label><input type="text" id="set-nagad" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Rocket Number</label><input type="text" id="set-rocket" class="form-input"></div>
+        </div>
+
+        <div class="flat-card" style="margin-top:16px;">
+            <h4 style="margin-bottom:18px; color:var(--info); font-weight:800;">🔗 Links & Videos</h4>
+            <div class="form-group"><label class="form-label">Support Link</label><input type="text" id="set-support" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Shop Link</label><input type="text" id="set-shop" class="form-input"></div>
+            <div class="form-group"><label class="form-label">How to Add Money (Video)</label><input type="text" id="set-vid-add" class="form-input"></div>
+            <div class="form-group"><label class="form-label">How to Join Match (Video)</label><input type="text" id="set-vid-join" class="form-input"></div>
+            <div class="form-group"><label class="form-label">How to Join Room (Video)</label><input type="text" id="set-vid-room" class="form-input"></div>
+        </div>
+
+        <div class="flat-card" style="margin-top:16px;">
+            <h4 style="margin-bottom:18px; color:var(--warning); font-weight:800;">👁️ Visibility Settings</h4>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0;">
+                <div>
+                    <div style="font-weight:700; font-size:14px;">Show Participants</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Toggle visibility of participants in match details</div>
+                </div>
+                <div class="toggle-switch active" id="toggle-participants" onclick="toggleParticipants()">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; margin-top:20px; padding:15px; font-size:14px;" onclick="saveSettings()">💾 SAVE ALL SETTINGS</button>
+    </section>
+
+    <!-- SLIDERS -->
+    <section id="sec-sliders" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="list-container" id="slider-list"></div>
+        
+        <div class="flat-card" style="margin-top:16px;">
+            <h4 style="margin-bottom:14px;">🖼️ Add New Banner</h4>
+            <div class="form-group"><input type="text" id="new-slider-img" class="form-input" placeholder="Image URL"></div>
+            <div class="form-group"><input type="text" id="new-slider-link" class="form-input" placeholder="Link (Optional)"></div>
+            <button class="btn btn-primary" style="width:100%" onclick="addSlider()">ADD BANNER</button>
+        </div>
+    </section>
+
+    <!-- NOTIFY -->
+    <section id="sec-notify" class="section">
+        <div class="back-nav" onclick="navTo('dashboard')"><i class="fas fa-chevron-left"></i> Back to Dashboard</div>
+        <div class="flat-card">
+            <div class="form-group">
+                <label class="form-label">Notification Title</label>
+                <input type="text" id="notif-title" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message Body</label>
+                <textarea id="notif-body" class="form-input" rows="4"></textarea>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="sendNotification()"><i class="fas fa-paper-plane"></i> SEND NOW</button>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, update, remove, get, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA0SUgQDabA3SwCyfyqjTud9Df3vy3rVo",
+            authDomain: "khelo-bangladesh-dc52a.firebaseapp.com",
+            databaseURL: "https://khelo-bangladesh-dc52a-default-rtdb.firebaseio.com",
+            projectId: "khelo-bangladesh-dc52a",
+            storageBucket: "khelo-bangladesh-dc52a.firebasestorage.app",
+            messagingSenderId: "93267931869",
+            appId: "1:93267931869:web:1a81599f4b3cddfd316134",
+            measurementId: "G-RX091K4TEW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allUsers = [];
+        let allCategories = [];
+        let currentAdminPin = "1234";
+        let matchParticipants = {};
+        let pendingWithdrawals = [];
+        let allMatches = [];
+        let allOrders = [];
+        let showParticipants = true;
+
+        // --- AUTH ---
+        onValue(ref(db, 'app_settings/admin_pin'), s => {
+            if(s.exists()) currentAdminPin = String(s.val());
+        });
+
+        onValue(ref(db, 'app_settings/show_participants'), s => {
+            if(s.exists()) {
+                showParticipants = s.val();
+                updateToggleSwitch();
+            }
+        });
+
+        function updateToggleSwitch() {
+            const toggle = document.getElementById('toggle-participants');
+            if(showParticipants) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        window.toggleParticipants = function() {
+            const toggle = document.getElementById('toggle-participants');
+            showParticipants = !showParticipants;
+            if(showParticipants) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            update(ref(db, 'app_settings'), { show_participants: showParticipants });
+        };
+
+        let pin = "";
+        window.typePin = (n) => {
+            if(pin.length < 4) {
+                pin += n;
+                updateDots();
+            }
+            if(pin === currentAdminPin) {
+                document.getElementById('auth-overlay').style.display = 'none';
+                initAdmin();
+            } else if(pin.length === 4) {
+                setTimeout(() => {
+                    if(pin !== currentAdminPin) { pin = ""; updateDots(); }
+                }, 300);
+            }
+        };
+        window.delPin = () => { pin = pin.slice(0, -1); updateDots(); };
+
+        function updateDots() {
+            document.querySelectorAll('.pin-dot').forEach((d, i) => {
+                d.classList.toggle('filled', i < pin.length);
+            });
+        }
+
+        // --- NAV ---
+        window.navTo = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`sec-${id}`).classList.add('active');
+        };
+
+        // --- INIT ---
+        function initAdmin() {
+            // Users
+            onValue(ref(db, 'users'), s => {
+                const d = s.val();
+                if(d) {
+                    allUsers = Object.entries(d).map(([k,v]) => ({uid:k, ...v}));
+                    document.getElementById('stat-users').innerText = allUsers.length;
+                    renderUsers(allUsers);
+                }
+            });
+
+            // Participants
+            onValue(ref(db, 'match_participants'), s => {
+                matchParticipants = s.val() || {};
+            });
+
+            loadCategories();
+            loadMatches();
+            loadWithdrawals();
+            loadTopUpPackages();
+            loadOrders();
+            loadSettings();
+            loadSliders();
+            updateToggleSwitch();
+        }
+
+        // --- CATEGORIES ---
+        function loadCategories() {
+            onValue(ref(db, 'categories'), s => {
+                const list = document.getElementById('category-list');
+                list.innerHTML = "";
+                const d = s.val();
+                allCategories = [];
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);'>No categories found</div>";
+
+                Object.entries(d).forEach(([key, c]) => {
+                    allCategories.push({id: key, name: c.name, rules: c.rules || '', img: c.img || ''});
+                    list.innerHTML += `
+                    <div class="flat-card">
+                        <div class="cat-card-row">
+                            <img src="${c.img || 'https://via.placeholder.com/55'}" class="cat-img">
+                            <div class="cat-info">
+                                <div class="fc-title">${c.name}</div>
+                                <div style="font-size:10px; color:var(--text-muted); opacity:0.7;">ID: ${key}</div>
+                                ${c.rules ? `<div style="font-size:11px; color:var(--warning); margin-top:3px;"><i class="fas fa-list"></i> Rules set</div>` : ''}
+                            </div>
+                            <div class="cat-actions">
+                                <button class="btn btn-primary" style="padding:10px;" onclick="editCategory('${key}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger" style="padding:10px;" onclick="deleteCategory('${key}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        window.addCategory = async () => {
+            const { value: formValues } = await Swal.fire({
+                title: '➕ Add Category',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Category Name</label>
+                    <input id="cat-name" class="swal2-input" placeholder="e.g. Free Fire">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Image URL</label>
+                    <input id="cat-img" class="swal2-input" placeholder="https://...">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Match Rules</label>
+                    <textarea id="cat-rules" class="swal2-textarea" placeholder="Enter match rules for this category..." rows="4"></textarea>
+                `,
+                confirmButtonText: 'Add',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    name: document.getElementById('cat-name').value,
+                    img: document.getElementById('cat-img').value,
+                    rules: document.getElementById('cat-rules').value
+                })
+            });
+
+            if(formValues && formValues.name) {
+                push(ref(db, 'categories'), formValues);
+                Swal.fire({icon:'success', title:'Added!', timer:1200, showConfirmButton:false});
+            }
+        };
+
+        window.editCategory = async (key) => {
+            const snap = await get(ref(db, `categories/${key}`));
+            const cat = snap.val();
+            const { value: formValues } = await Swal.fire({
+                title: '✏️ Edit Category',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Category Name</label>
+                    <input id="cat-name" class="swal2-input" value="${cat.name}">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Image URL</label>
+                    <input id="cat-img" class="swal2-input" value="${cat.img || ''}">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Match Rules</label>
+                    <textarea id="cat-rules" class="swal2-textarea" rows="4">${cat.rules || ''}</textarea>
+                `,
+                confirmButtonText: 'Update',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    name: document.getElementById('cat-name').value,
+                    img: document.getElementById('cat-img').value,
+                    rules: document.getElementById('cat-rules').value
+                })
+            });
+
+            if(formValues) {
+                update(ref(db, `categories/${key}`), formValues);
+                Swal.fire({icon:'success', title:'Updated!', timer:1200, showConfirmButton:false});
+            }
+        };
+
+        window.deleteCategory = (key) => {
+            Swal.fire({
+                title: 'Delete Category?',
+                text: "Matches in this category won't be deleted automatically.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a',
+                cancelButtonColor: '#3085d6'
+            }).then(r => {
+                if(r.isConfirmed) remove(ref(db, `categories/${key}`));
+            });
+        };
+
+        // --- MATCHES ---
+        function loadMatches() {
+            onValue(ref(db, 'matches'), s => {
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
+                const d = s.val();
+                allMatches = [];
+                if(!d) return list.innerHTML = "<div style='text-align:center;color:var(--text-muted);'>No matches created</div>";
+
+                Object.entries(d).reverse().forEach(([key, m]) => {
+                    allMatches.push({dbKey: key, ...m});
+                    const tagClass = m.status === 'Upcoming' ? 'tag-yellow' : (m.status === 'Ongoing' ? 'tag-blue' : 'tag-green');
+                    const participantCount = matchParticipants[key] ? Object.keys(matchParticipants[key]).length : 0;
+
+                    list.innerHTML += `
+                    <div class="flat-card">
+                        <div class="fc-header">
+                            <div class="fc-title">${m.title}</div>
+                            <div class="fc-tag ${tagClass}">${m.status}</div>
+                        </div>
+                        <div class="fc-detail"><span>Date:</span> <span class="fc-value">${m.time}</span></div>
+                        <div class="fc-detail"><span>Map/Type:</span> <span class="fc-value">${m.map} - ${m.type}</span></div>
+                        <div class="fc-detail"><span>Entry/Prize:</span> <span style="color:var(--success); font-weight:700;">৳${m.entry} / ৳${m.total_prize}</span></div>
+                        <div class="fc-detail"><span>Joined:</span> <span style="color:var(--warning); font-weight:700;">${participantCount}/${m.total}</span></div>
+                        ${m.winner ? `<div class="fc-detail"><span>🏆 Winner:</span> <span style="color:var(--success); font-weight:700;">${m.winnerName || m.winner}</span></div>` : ''}
+                        <div class="fc-actions three">
+                            <button class="btn btn-primary" onclick="editMatch('${key}')"><i class="fas fa-cog"></i> Manage</button>
+                            <button class="btn btn-warning" onclick="viewParticipants('${key}')"><i class="fas fa-users"></i> ${participantCount}</button>
+                            <button class="btn btn-danger" onclick="deleteMatch('${key}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        // --- VIEW PARTICIPANTS ---
+        window.viewParticipants = async (matchKey) => {
+            const matchSnap = await get(ref(db, `matches/${matchKey}`));
+            const match = matchSnap.val();
+            if(!match) return Swal.fire('Error', 'Match not found', 'error');
+
+            let participantsHTML = '';
+            let participants = [];
+            if(matchParticipants[matchKey]) {
+                participants = Object.entries(matchParticipants[matchKey]).map(([id, p]) => ({id, ...p}));
+            }
+
+            if(participants.length === 0) {
+                participantsHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">No participants joined yet</div>';
+            } else {
+                participants.forEach((p, idx) => {
+                    const isWinner = match.winnerId === p.id;
+                    participantsHTML += `
+                    <div class="participant-row">
+                        <div class="participant-info">
+                            <span class="participant-number">#${idx + 1}</span>
+                            <div>
+                                <div class="participant-name">${p.ign || 'Unknown'}</div>
+                                <div class="participant-ign">ID: ${p.joinedBy || ''}</div>
+                            </div>
+                            ${isWinner ? '<span class="winner-badge">🏆 Winner</span>' : ''}
+                        </div>
+                        <div class="participant-actions">
+                            ${!isWinner ? `
+                                <button class="btn-sm btn-sm-success" onclick="setWinner('${matchKey}', '${p.id}', '${p.ign || 'Player'}')">
+                                    <i class="fas fa-crown"></i> Set Winner
+                                </button>
+                            ` : `
+                                <button class="btn-sm btn-sm-danger" onclick="removeWinner('${matchKey}')">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            `}
+                        </div>
+                    </div>`;
+                });
+            }
+
+            await Swal.fire({
+                title: `👥 Participants - ${match.title}`,
+                html: `
+                    <div style="text-align:left; margin-bottom:12px;">
+                        <div style="color:var(--text-muted); font-size:13px;">Total: ${participants.length} / ${match.total} players</div>
+                        ${match.winner ? `<div style="color:#ffd700; font-size:14px; margin-top:4px;">🏆 Winner: ${match.winnerName || match.winner}</div>` : '<div style="color:var(--text-muted); font-size:13px; margin-top:4px;">No winner selected yet</div>'}
+                    </div>
+                    <div style="max-height:400px; overflow-y:auto; text-align:left;">
+                        ${participantsHTML}
+                    </div>
+                `,
+                width: 600,
+                confirmButtonText: 'Close',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                cancelButtonText: '⚙️ Manage Winners',
+                cancelButtonColor: '#ffd93d'
+            }).then((result) => {
+                if(result.dismiss === Swal.DismissReason.cancel) {
+                    showWinnerManagement(matchKey, match);
+                }
+            });
+        };
+
+        // --- SHOW WINNER MANAGEMENT ---
+        function showWinnerManagement(matchKey, match) {
+            Swal.fire({
+                title: '🏆 Winner Management',
+                html: `
+                    <div style="text-align:left;">
+                        <div style="margin-bottom:12px; color:var(--text-muted);">Match: ${match.title}</div>
+                        ${match.winner ? `
+                            <div style="background:rgba(255,215,0,0.06); padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid rgba(255,215,0,0.1);">
+                                <div style="color:#ffd700; font-weight:700;">Current Winner</div>
+                                <div style="color:#fff; font-size:16px;">${match.winnerName || match.winner}</div>
+                                <div style="color:var(--text-muted); font-size:13px;">Winning Amount: ৳${match.winnerAmount || 0}</div>
+                            </div>
+                        ` : '<div style="color:var(--text-muted); margin-bottom:12px;">No winner selected yet</div>'}
+                        
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button class="btn btn-success" style="flex:1; padding:12px;" onclick="setWinnerFromManagement('${matchKey}')">
+                                <i class="fas fa-crown"></i> Select Winner
+                            </button>
+                            ${match.winner ? `
+                                <button class="btn btn-warning" style="flex:1; padding:12px;" onclick="updateWinnerAmount('${matchKey}')">
+                                    <i class="fas fa-edit"></i> Update Amount
+                                </button>
+                                <button class="btn btn-danger" style="flex:1; padding:12px;" onclick="removeWinner('${matchKey}')">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Done',
+                confirmButtonColor: '#6C63FF',
+                width: 500,
+                showCancelButton: false
+            });
+        }
+
+        // --- SET WINNER ---
+        window.setWinner = async (matchKey, participantId, playerName) => {
+            const { value: amount } = await Swal.fire({
+                title: 'Set Winner Amount',
+                text: `Enter winning amount for ${playerName}`,
+                input: 'number',
+                inputPlaceholder: 'Enter amount',
+                inputAttributes: { min: 0 },
+                showCancelButton: true,
+                confirmButtonText: 'Set Winner',
+                confirmButtonColor: '#00d4aa'
+            });
+
+            if(amount) {
+                try {
+                    await update(ref(db, `matches/${matchKey}`), {
+                        winner: playerName,
+                        winnerId: participantId,
+                        winnerAmount: parseFloat(amount),
+                        winnerSetAt: new Date().toLocaleString()
+                    });
+
+                    const userId = matchParticipants[matchKey]?.[participantId]?.joinedBy;
+                    if(userId) {
+                        const userSnap = await get(ref(db, `users/${userId}`));
+                        const user = userSnap.val();
+                        await update(ref(db, `users/${userId}`), {
+                            winning: (user.winning || 0) + parseFloat(amount)
+                        });
+                        
+                        const txId = push(ref(db, 'transactions/' + userId)).key;
+                        await set(ref(db, 'transactions/' + userId + '/' + txId), {
+                            type: 'Match Win',
+                            amount: parseFloat(amount),
+                            status: 'Success',
+                            matchId: matchKey,
+                            date: new Date().toLocaleString()
+                        });
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Winner Set!',
+                        text: `${playerName} won ৳${amount}`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    loadMatches();
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        // --- SET WINNER FROM MANAGEMENT ---
+        window.setWinnerFromManagement = async (matchKey) => {
+            const participants = matchParticipants[matchKey] ? Object.entries(matchParticipants[matchKey]) : [];
+            if(participants.length === 0) return Swal.fire('Error', 'No participants', 'error');
+
+            const options = participants.reduce((acc, [id, p]) => {
+                acc[id] = p.ign || 'Unknown';
+                return acc;
+            }, {});
+
+            const { value: selected } = await Swal.fire({
+                title: 'Select Winner',
+                input: 'select',
+                inputOptions: options,
+                inputPlaceholder: 'Select a player',
+                showCancelButton: true,
+                confirmButtonText: 'Next',
+                confirmButtonColor: '#6C63FF'
+            });
+
+            if(selected) {
+                const player = participants.find(([id]) => id === selected);
+                if(player) {
+                    window.setWinner(matchKey, player[0], player[1].ign || 'Player');
+                }
+            }
+        };
+
+        // --- UPDATE WINNER AMOUNT ---
+        window.updateWinnerAmount = async (matchKey) => {
+            const matchSnap = await get(ref(db, `matches/${matchKey}`));
+            const match = matchSnap.val();
+            if(!match || !match.winner) return Swal.fire('Error', 'No winner', 'error');
+
+            const { value: newAmount } = await Swal.fire({
+                title: 'Update Winner Amount',
+                text: `Current winner: ${match.winnerName || match.winner}`,
+                input: 'number',
+                inputValue: match.winnerAmount || 0,
+                inputAttributes: { min: 0 },
+                showCancelButton: true,
+                confirmButtonText: 'Update',
+                confirmButtonColor: '#ffd93d'
+            });
+
+            if(newAmount !== null && newAmount !== undefined) {
+                try {
+                    const oldAmount = match.winnerAmount || 0;
+                    const diff = parseFloat(newAmount) - oldAmount;
+                    
+                    await update(ref(db, `matches/${matchKey}`), {
+                        winnerAmount: parseFloat(newAmount)
+                    });
+
+                    if(diff !== 0 && match.winnerId) {
+                        const participant = matchParticipants[matchKey]?.[match.winnerId];
+                        if(participant?.joinedBy) {
+                            const userSnap = await get(ref(db, `users/${participant.joinedBy}`));
+                            const user = userSnap.val();
+                            await update(ref(db, `users/${participant.joinedBy}`), {
+                                winning: (user.winning || 0) + diff
+                            });
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: `Amount updated to ৳${newAmount}`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    loadMatches();
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        // --- REMOVE WINNER ---
+        window.removeWinner = async (matchKey) => {
+            const matchSnap = await get(ref(db, `matches/${matchKey}`));
+            const match = matchSnap.val();
+            if(!match || !match.winner) return Swal.fire('Error', 'No winner', 'error');
+
+            const result = await Swal.fire({
+                title: 'Remove Winner?',
+                text: `This will remove ${match.winnerName || match.winner} as winner.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a',
+                cancelButtonColor: '#3085d6'
+            });
+
+            if(result.isConfirmed) {
+                await update(ref(db, `matches/${matchKey}`), {
+                    winner: null,
+                    winnerId: null,
+                    winnerAmount: null
+                });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Removed!',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                loadMatches();
+            }
+        };
+
+        // --- CREATE MATCH ---
+        window.createMatchPopup = async () => {
+            let catOptions = allCategories.length === 0 ?
+                '<option disabled selected>No categories! Add one first.</option>' :
+                allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            const { value: formValues } = await Swal.fire({
+                title: '🎮 Create New Match',
+                width: 600,
+                html: `
+                    <div style="text-align:left;">
+                        <label class="form-label" style="color:var(--text-muted);">Match Title</label>
+                        <input id="swal-title" class="swal2-input" placeholder="e.g. Regular Match">
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+                            <div><label class="form-label" style="color:var(--text-muted);">Date</label><input id="swal-date" type="date" class="swal2-input"></div>
+                            <div><label class="form-label" style="color:var(--text-muted);">Time</label><input id="swal-time" type="time" class="swal2-input"></div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+                            <div>
+                                <label class="form-label" style="color:var(--text-muted);">Type</label>
+                                <select id="swal-type" class="swal2-select" style="width:100%;"><option>Solo</option><option>Duo</option><option>Squad</option></select>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-muted);">Map</label>
+                                <input id="swal-map" class="swal2-input" placeholder="e.g. Bermuda">
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+                            <div><label class="form-label" style="color:var(--text-muted);">Entry Fee</label><input id="swal-entry" type="number" class="swal2-input"></div>
+                            <div><label class="form-label" style="color:var(--text-muted);">Total Prize</label><input id="swal-prize" type="number" class="swal2-input"></div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+                            <div><label class="form-label" style="color:var(--text-muted);">Per Kill</label><input id="swal-kill" type="number" class="swal2-input"></div>
+                            <div><label class="form-label" style="color:var(--text-muted);">Total Slots</label><input id="swal-total" type="number" class="swal2-input"></div>
+                        </div>
+
+                        <label class="form-label" style="margin-top:12px; color:var(--text-muted);">Category</label>
+                        <select id="swal-cat" class="swal2-select" style="width:100%;">${catOptions}</select>
+                        
+                        <label class="form-label" style="margin-top:12px; color:var(--text-muted);">Prize Distribution</label>
+                        <textarea id="swal-prize-desc" class="swal2-textarea" placeholder="e.g. Winner: 50%, Runner-up: 25%" rows="3"></textarea>
+                    </div>
+                `,
+                confirmButtonText: 'Create',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => {
+                    const date = document.getElementById('swal-date').value;
+                    const time = document.getElementById('swal-time').value;
+                    const catId = document.getElementById('swal-cat').value;
+                    if(!date || !time) return Swal.showValidationMessage('Date and Time required');
+                    if(!catId || catId === 'No categories! Add one first.') return Swal.showValidationMessage('Select a Category');
+
+                    const dObj = new Date(`${date}T${time}`);
+                    return {
+                        title: document.getElementById('swal-title').value,
+                        time: dObj.toLocaleDateString('en-US', {day:'numeric', month:'short'}) + ' - ' + dObj.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
+                        type: document.getElementById('swal-type').value,
+                        map: document.getElementById('swal-map').value,
+                        entry: parseInt(document.getElementById('swal-entry').value) || 0,
+                        total_prize: parseInt(document.getElementById('swal-prize').value) || 0,
+                        per_kill: parseInt(document.getElementById('swal-kill').value) || 0,
+                        total: parseInt(document.getElementById('swal-total').value) || 48,
+                        categoryId: catId,
+                        status: 'Upcoming',
+                        timestamp: dObj.getTime(),
+                        prize_desc: document.getElementById('swal-prize-desc').value || '',
+                        joined: 0
+                    };
+                }
+            });
+
+            if(formValues) {
+                push(ref(db, 'matches'), formValues);
+                Swal.fire({icon:'success', title:'Match Created!', timer:1500, showConfirmButton:false});
+            }
+        };
+
+        window.deleteMatch = (key) => {
+            Swal.fire({
+                title: 'Delete Match?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a'
+            }).then(r => { if(r.isConfirmed) remove(ref(db, `matches/${key}`)); });
+        };
+
+        window.editMatch = async (key) => {
+            const snap = await get(ref(db, `matches/${key}`));
+            const m = snap.val();
+            const { value: formValues } = await Swal.fire({
+                title: '⚙️ Manage Match',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Status</label>
+                    <select id="edit-status" class="swal2-select" style="width:100%;">
+                        <option ${m.status=='Upcoming'?'selected':''}>Upcoming</option>
+                        <option ${m.status=='Ongoing'?'selected':''}>Ongoing</option>
+                        <option ${m.status=='Finished'?'selected':''}>Finished</option>
+                    </select>
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Room ID</label>
+                    <input id="edit-roomid" class="swal2-input" value="${m.room_id || ''}" placeholder="Enter Room ID">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Room Password</label>
+                    <input id="edit-pass" class="swal2-input" value="${m.room_pass || ''}" placeholder="Enter Password">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Prize Distribution</label>
+                    <textarea id="edit-desc" class="swal2-textarea" rows="3">${m.prize_desc || ''}</textarea>
+                `,
+                confirmButtonText: 'Update',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    status: document.getElementById('edit-status').value,
+                    room_id: document.getElementById('edit-roomid').value,
+                    room_pass: document.getElementById('edit-pass').value,
+                    prize_desc: document.getElementById('edit-desc').value
+                })
+            });
+
+            if(formValues) {
+                update(ref(db, `matches/${key}`), formValues);
+                Swal.fire({icon:'success', title:'Updated!', timer:1200, showConfirmButton:false});
+            }
+        };
+
+        // --- USERS ---
+        function renderUsers(users) {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            users.forEach(u => {
+                list.innerHTML += `
+                <div class="flat-card">
+                    <div class="fc-header"><div class="fc-title">${u.username || 'No Name'}</div></div>
+                    <div class="fc-detail"><span>Email:</span> ${u.email}</div>
+                    <div class="fc-detail"><span>UID:</span> <span style="font-size:11px;opacity:0.7;">${u.uid}</span></div>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                        <div style="text-align:center;"><div style="font-size:10px; color:var(--text-muted);">Deposit</div><div style="color:var(--success); font-weight:bold;">৳${u.deposit || 0}</div></div>
+                        <div style="text-align:center;"><div style="font-size:10px; color:var(--text-muted);">Winning</div><div style="color:var(--warning); font-weight:bold;">৳${u.winning || 0}</div></div>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="editUserBalance('${u.uid}', ${u.deposit || 0}, ${u.winning || 0})">Edit Balance</button>
+                </div>`;
+            });
+        }
+
+        window.filterUsers = () => {
+            const q = document.getElementById('user-search').value.toLowerCase();
+            renderUsers(allUsers.filter(u =>
+                (u.username && u.username.toLowerCase().includes(q)) ||
+                (u.email && u.email.toLowerCase().includes(q)) ||
+                u.uid.toLowerCase().includes(q)
+            ));
+        };
+
+        window.editUserBalance = async (uid, dep, win) => {
+            const { value: formValues } = await Swal.fire({
+                title: '💰 Adjust Balance',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Deposit Wallet</label>
+                    <input id="bal-dep" type="number" class="swal2-input" value="${dep}">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Winning Wallet</label>
+                    <input id="bal-win" type="number" class="swal2-input" value="${win}">
+                `,
+                confirmButtonText: 'Save',
+                confirmButtonColor: '#00d4aa',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    deposit: parseInt(document.getElementById('bal-dep').value),
+                    winning: parseInt(document.getElementById('bal-win').value)
+                })
+            });
+
+            if(formValues) {
+                update(ref(db, `users/${uid}`), formValues);
+                Swal.fire({icon:'success', title:'Updated!', timer:1000, showConfirmButton:false});
+            }
+        };
+
+        // --- WITHDRAWALS ---
+        function loadWithdrawals() {
+            onValue(ref(db, 'withdraw_requests'), s => {
+                const list = document.getElementById('withdraw-list');
+                const badge = document.getElementById('withdraw-badge');
+                const d = s.val();
+                
+                if(!d) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted);'>No withdrawal requests</div>";
+                    badge.style.display = 'none';
+                    return;
+                }
+
+                const pendings = Object.entries(d).filter(([_, req]) => req.status === 'pending');
+                
+                if(pendings.length > 0) {
+                    badge.innerText = pendings.length;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                if(pendings.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted);'>No pending requests</div>";
+                    return;
+                }
+
+                list.innerHTML = "";
+                pendings.sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp));
+                
+                pendings.forEach(([reqId, req]) => {
+                    list.innerHTML += `
+                    <div class="flat-card" style="border-left:3px solid var(--warning);">
+                        <div class="fc-header">
+                            <div class="fc-title" style="color:var(--warning);">৳${req.amount}</div>
+                            <div class="fc-tag tag-yellow">PENDING</div>
+                        </div>
+                        <div class="fc-detail"><span>User:</span> <span class="fc-value">${req.userName || req.userEmail || req.userId}</span></div>
+                        <div class="fc-detail"><span>Method:</span> <span class="fc-value">${req.method}</span></div>
+                        <div class="fc-detail"><span>Number:</span> <span class="fc-value">${req.mobileNumber}</span></div>
+                        <div class="fc-detail"><span>Date:</span> ${req.timestamp}</div>
+                        <div class="fc-actions">
+                            <button class="btn btn-success" onclick="approveWithdraw('${reqId}', '${req.userId}', ${req.amount})">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectWithdraw('${reqId}', '${req.userId}', ${req.amount})">Reject</button>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        window.approveWithdraw = async (reqId, userId, amount) => {
+            const result = await Swal.fire({
+                title: 'Approve Withdrawal?',
+                text: `Approve ${amount} TK withdrawal?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00d4aa',
+                cancelButtonColor: '#d33'
+            });
+
+            if(result.isConfirmed) {
+                try {
+                    await update(ref(db, `withdraw_requests/${reqId}`), {
+                        status: 'approved',
+                        processedAt: new Date().toLocaleString()
+                    });
+                    
+                    const txId = push(ref(db, 'transactions/' + userId)).key;
+                    await set(ref(db, 'transactions/' + userId + '/' + txId), {
+                        type: 'Withdraw',
+                        amount: amount,
+                        status: 'Success',
+                        date: new Date().toLocaleString(),
+                        requestId: reqId
+                    });
+                    
+                    Swal.fire({icon:'success', title:'Approved!', timer:1500, showConfirmButton:false});
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        window.rejectWithdraw = async (reqId, userId, amount) => {
+            const result = await Swal.fire({
+                title: 'Reject Withdrawal?',
+                text: `Refund ${amount} TK to user's winning balance?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a',
+                cancelButtonColor: '#3085d6'
+            });
+
+            if(result.isConfirmed) {
+                try {
+                    const userSnap = await get(ref(db, `users/${userId}`));
+                    const user = userSnap.val();
+                    await update(ref(db, `users/${userId}`), {
+                        winning: (user.winning || 0) + amount
+                    });
+                    
+                    await update(ref(db, `withdraw_requests/${reqId}`), {
+                        status: 'rejected',
+                        processedAt: new Date().toLocaleString()
+                    });
+                    
+                    const txId = push(ref(db, 'transactions/' + userId)).key;
+                    await set(ref(db, 'transactions/' + userId + '/' + txId), {
+                        type: 'Withdraw Rejected (Refund)',
+                        amount: amount,
+                        status: 'Refunded',
+                        date: new Date().toLocaleString(),
+                        requestId: reqId
+                    });
+                    
+                    Swal.fire({icon:'success', title:'Rejected & Refunded', timer:1500, showConfirmButton:false});
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        // --- TOP-UP PACKAGES ---
+        function loadTopUpPackages() {
+            onValue(ref(db, 'topup_packages'), s => {
+                const list = document.getElementById('topup-package-list');
+                list.innerHTML = "";
+                const d = s.val();
+                if(!d) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted);'>No packages created</div>";
+                    return;
+                }
+
+                Object.entries(d).forEach(([key, pkg]) => {
+                    list.innerHTML += `
+                    <div class="flat-card">
+                        <div class="fc-header">
+                            <div class="fc-title">💎 ${pkg.name}</div>
+                            <div class="fc-tag tag-purple">${pkg.price} TK</div>
+                        </div>
+                        <div class="fc-detail"><span>Package ID:</span> <span style="font-size:11px;opacity:0.7;">${key}</span></div>
+                        <div class="fc-actions">
+                            <button class="btn btn-primary" onclick="editTopUpPackage('${key}')"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger" onclick="deleteTopUpPackage('${key}')"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        window.addTopUpPackage = async () => {
+            const { value: formValues } = await Swal.fire({
+                title: '💎 Add Top-Up Package',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Package Name</label>
+                    <input id="pkg-name" class="swal2-input" placeholder="e.g. 100 Diamond">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Price (TK)</label>
+                    <input id="pkg-price" type="number" class="swal2-input" placeholder="e.g. 100">
+                `,
+                confirmButtonText: 'Add Package',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    name: document.getElementById('pkg-name').value,
+                    price: parseInt(document.getElementById('pkg-price').value) || 0
+                })
+            });
+
+            if(formValues && formValues.name && formValues.price > 0) {
+                push(ref(db, 'topup_packages'), formValues);
+                Swal.fire({icon:'success', title:'Package Added!', timer:1500, showConfirmButton:false});
+            } else {
+                Swal.fire('Error', 'Please fill all fields correctly', 'error');
+            }
+        };
+
+        window.editTopUpPackage = async (key) => {
+            const snap = await get(ref(db, `topup_packages/${key}`));
+            const pkg = snap.val();
+            if(!pkg) return Swal.fire('Error', 'Package not found', 'error');
+
+            const { value: formValues } = await Swal.fire({
+                title: '✏️ Edit Package',
+                html: `
+                    <label class="form-label" style="text-align:left; color:var(--text-muted);">Package Name</label>
+                    <input id="pkg-name" class="swal2-input" value="${pkg.name}">
+                    <label class="form-label" style="text-align:left; margin-top:12px; color:var(--text-muted);">Price (TK)</label>
+                    <input id="pkg-price" type="number" class="swal2-input" value="${pkg.price}">
+                `,
+                confirmButtonText: 'Update',
+                confirmButtonColor: '#6C63FF',
+                showCancelButton: true,
+                preConfirm: () => ({
+                    name: document.getElementById('pkg-name').value,
+                    price: parseInt(document.getElementById('pkg-price').value) || 0
+                })
+            });
+
+            if(formValues && formValues.name && formValues.price > 0) {
+                update(ref(db, `topup_packages/${key}`), formValues);
+                Swal.fire({icon:'success', title:'Updated!', timer:1200, showConfirmButton:false});
+            }
+        };
+
+        window.deleteTopUpPackage = (key) => {
+            Swal.fire({
+                title: 'Delete Package?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a'
+            }).then(r => {
+                if(r.isConfirmed) remove(ref(db, `topup_packages/${key}`));
+            });
+        };
+
+        // --- ORDERS ---
+        function loadOrders() {
+            onValue(ref(db, 'topup_orders'), s => {
+                const list = document.getElementById('order-list');
+                const badge = document.getElementById('order-badge');
+                const d = s.val();
+                
+                if(!d) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted);'>No orders yet</div>";
+                    badge.style.display = 'none';
+                    return;
+                }
+
+                const pendings = Object.entries(d).filter(([_, order]) => order.status === 'pending');
+                allOrders = Object.entries(d).map(([k, v]) => ({id: k, ...v}));
+                
+                if(pendings.length > 0) {
+                    badge.innerText = pendings.length;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                if(Object.keys(d).length === 0) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted);'>No orders</div>";
+                    return;
+                }
+
+                list.innerHTML = "";
+                Object.entries(d).sort((a, b) => new Date(b[1].timestamp) - new Date(a[1].timestamp))
+                    .forEach(([orderId, order]) => {
+                        let statusClass = 'status-pending';
+                        let statusText = 'PENDING';
+                        if(order.status === 'approved') { statusClass = 'status-approved'; statusText = 'APPROVED'; }
+                        if(order.status === 'rejected') { statusClass = 'status-rejected'; statusText = 'REJECTED'; }
+
+                        list.innerHTML += `
+                        <div class="flat-card" style="border-left:3px solid ${order.status === 'pending' ? 'var(--warning)' : order.status === 'approved' ? 'var(--success)' : 'var(--danger)'};">
+                            <div class="fc-header">
+                                <div class="fc-title">${order.userName || order.userEmail || 'Unknown'}</div>
+                                <div class="status-badge ${statusClass}">${statusText}</div>
+                            </div>
+                            <div class="fc-detail"><span>Package:</span> <span class="fc-value">${order.packageName || order.packageId || 'N/A'}</span></div>
+                            <div class="fc-detail"><span>Amount:</span> <span style="color:var(--warning); font-weight:700;">৳${order.amount}</span></div>
+                            <div class="fc-detail"><span>FF UID:</span> <span class="order-uid-badge">${order.uid || 'N/A'}</span></div>
+                            <div class="fc-detail"><span>User ID:</span> <span style="font-size:11px;opacity:0.7;">${order.userId}</span></div>
+                            <div class="fc-detail"><span>Date:</span> ${order.timestamp || ''}</div>
+                            ${order.status === 'pending' ? `
+                            <div class="fc-actions">
+                                <button class="btn btn-success" onclick="approveOrder('${orderId}', '${order.userId}', ${order.amount}, '${order.uid || ''}')">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                                <button class="btn btn-danger" onclick="rejectOrder('${orderId}', '${order.userId}', ${order.amount})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>` : `
+                            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                                <div style="font-size:11px; color:var(--text-muted);">Processed on: ${order.processedAt || 'N/A'}</div>
+                            </div>`}
+                        </div>`;
+                    });
+            });
+        }
+
+        window.approveOrder = async (orderId, userId, amount, uid) => {
+            const result = await Swal.fire({
+                title: 'Accept Order?',
+                html: `
+                    <div style="text-align:left;">
+                        <div style="padding:8px 0; border-bottom:1px solid var(--border);">
+                            <span style="color:var(--text-muted);">Amount:</span> 
+                            <span style="color:var(--warning); font-weight:700;">৳${amount}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px solid var(--border);">
+                            <span style="color:var(--text-muted);">FF UID:</span> 
+                            <span style="color:var(--info); font-weight:700;">${uid || 'N/A'}</span>
+                        </div>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00d4aa',
+                cancelButtonColor: '#d33'
+            });
+
+            if(result.isConfirmed) {
+                try {
+                    await update(ref(db, `topup_orders/${orderId}`), {
+                        status: 'approved',
+                        processedAt: new Date().toLocaleString()
+                    });
+
+                    const userSnap = await get(ref(db, `users/${userId}`));
+                    const user = userSnap.val();
+                    await update(ref(db, `users/${userId}`), {
+                        deposit: (user.deposit || 0) + amount
+                    });
+
+                    const txId = push(ref(db, 'transactions/' + userId)).key;
+                    await set(ref(db, 'transactions/' + userId + '/' + txId), {
+                        type: 'Top-Up Approved',
+                        amount: amount,
+                        uid: uid || '',
+                        status: 'Success',
+                        orderId: orderId,
+                        date: new Date().toLocaleString()
+                    });
+
+                    Swal.fire({icon:'success', title:'Approved!', timer:1500, showConfirmButton:false});
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        window.rejectOrder = async (orderId, userId, amount) => {
+            const result = await Swal.fire({
+                title: 'Reject Order?',
+                text: `Reject this order of ৳${amount}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff5e7a',
+                cancelButtonColor: '#3085d6'
+            });
+
+            if(result.isConfirmed) {
+                try {
+                    await update(ref(db, `topup_orders/${orderId}`), {
+                        status: 'rejected',
+                        processedAt: new Date().toLocaleString()
+                    });
+
+                    const userSnap = await get(ref(db, `users/${userId}`));
+                    const user = userSnap.val();
+                    await update(ref(db, `users/${userId}`), {
+                        winning: (user.winning || 0) + amount
+                    });
+
+                    const txId = push(ref(db, 'transactions/' + userId)).key;
+                    await set(ref(db, 'transactions/' + userId + '/' + txId), {
+                        type: 'Top-Up Rejected (Refund)',
+                        amount: amount,
+                        status: 'Refunded',
+                        orderId: orderId,
+                        date: new Date().toLocaleString()
+                    });
+
+                    Swal.fire({icon:'success', title:'Rejected & Refunded', timer:1500, showConfirmButton:false});
+                } catch(error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        };
+
+        // --- SETTINGS ---
+        function loadSettings() {
+            onValue(ref(db, 'app_settings'), s => {
+                const d = s.val();
+                if(d) {
+                    document.getElementById('set-app-name').value = d.app_name || '';
+                    document.getElementById('set-app-logo').value = d.app_logo || '';
+                    document.getElementById('set-notice').value = d.notice || '';
+                    document.getElementById('set-popup').value = d.popup_text || '';
+                    document.getElementById('set-show-popup').value = d.show_popup ? 'true' : 'false';
+                    document.getElementById('set-bkash').value = d.bkash_number || '';
+                    document.getElementById('set-nagad').value = d.nagad_number || '';
+                    document.getElementById('set-rocket').value = d.rocket_number || '';
+                    document.getElementById('set-support').value = d.support_link || '';
+                    document.getElementById('set-shop').value = d.shop_link || '';
+                    document.getElementById('set-vid-add').value = d.how_to_add_money_link || '';
+                    document.getElementById('set-vid-join').value = d.how_to_play_link || '';
+                    document.getElementById('set-vid-room').value = d.how_to_get_room_id_link || '';
+                    
+                    if(d.show_participants !== undefined) {
+                        showParticipants = d.show_participants;
+                        updateToggleSwitch();
+                    }
+                }
+            });
+        }
+
+        window.saveSettings = () => {
+            const data = {
+                app_name: document.getElementById('set-app-name').value,
+                app_logo: document.getElementById('set-app-logo').value,
+                notice: document.getElementById('set-notice').value,
+                popup_text: document.getElementById('set-popup').value,
+                show_popup: document.getElementById('set-show-popup').value === 'true',
+                bkash_number: document.getElementById('set-bkash').value,
+                nagad_number: document.getElementById('set-nagad').value,
+                rocket_number: document.getElementById('set-rocket').value,
+                support_link: document.getElementById('set-support').value,
+                shop_link: document.getElementById('set-shop').value,
+                how_to_add_money_link: document.getElementById('set-vid-add').value,
+                how_to_play_link: document.getElementById('set-vid-join').value,
+                how_to_get_room_id_link: document.getElementById('set-vid-room').value,
+                show_participants: showParticipants
+            };
+            update(ref(db, 'app_settings'), data);
+            Swal.fire({icon:'success', title:'Settings Saved!', timer:1500, showConfirmButton:false});
+        };
+
+        // --- CHANGE PIN ---
+        window.changeAdminPinPopup = async () => {
+            const { value: newPin } = await Swal.fire({
+                title: '🔑 Change Admin PIN',
+                input: 'text',
+                inputAttributes: { maxlength: 4, pattern: "[0-9]*", inputmode: "numeric" },
+                inputPlaceholder: 'Enter 4-digit PIN',
+                confirmButtonText: 'Set PIN',
+                confirmButtonColor: '#ff5e7a',
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if(!value || value.length !== 4 || isNaN(value)) return 'PIN must be exactly 4 digits!';
+                }
+            });
+
+            if(newPin) {
+                update(ref(db, 'app_settings'), { admin_pin: newPin });
+                Swal.fire({icon:'success', title:'PIN Changed!', timer:1500, showConfirmButton:false});
+            }
+        };
+
+        // --- SLIDERS ---
+        function loadSliders() {
+            onValue(ref(db, 'app_settings/banners'), s => {
+                const d = s.val();
+                const list = document.getElementById('slider-list');
+                list.innerHTML = "";
+                if(d) {
+                    Object.entries(d).forEach(([k, v]) => {
+                        list.innerHTML += `
+                        <div class="flat-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px;">
+                            <img src="${v.img}" style="width:80px; height:40px; object-fit:cover; border-radius:8px;">
+                            <button class="btn btn-danger" style="padding:8px;" onclick="deleteSlider('${k}')"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    });
+                }
+            });
+        }
+
+        window.addSlider = () => {
+            const img = document.getElementById('new-slider-img').value;
+            const link = document.getElementById('new-slider-link').value;
+            if(!img) return Swal.fire('Error', 'Image URL required', 'error');
+            
+            push(ref(db, 'app_settings/banners'), { img, link });
+            document.getElementById('new-slider-img').value = "";
+            document.getElementById('new-slider-link').value = "";
+            Swal.fire({icon:'success', title:'Added!', timer:1000, showConfirmButton:false});
+        };
+
+        window.deleteSlider = (k) => remove(ref(db, `app_settings/banners/${k}`));
+
+        // --- NOTIFICATIONS ---
+        window.sendNotification = () => {
+            const title = document.getElementById('notif-title').value;
+            const body = document.getElementById('notif-body').value;
+            if(!title || !body) return Swal.fire('Error', 'Fill all fields', 'error');
+
+            push(ref(db, 'notifications'), {
+                title,
+                body,
+                time: new Date().toLocaleString()
+            });
+            Swal.fire({icon:'success', title:'Sent!', timer:1500, showConfirmButton:false});
+            document.getElementById('notif-title').value = "";
+            document.getElementById('notif-body').value = "";
+        };
+
+    </script>
 </body>
 </html>
