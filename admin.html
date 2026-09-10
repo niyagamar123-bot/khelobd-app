@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KheloBD Admin</title>
+<style>
+body{font-family:sans-serif;background:#f5f5f5;margin:0;padding:20px}
+.container{max-width:600px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+h1{text-align:center;color:red}
+.btn{padding:10px 15px;margin:5px;border:none;border-radius:8px;background:#25D366;color:white;cursor:pointer}
+.btn-red{background:red}
+input{padding:8px;margin:5px;border:1px solid #ddd;border-radius:8px}
+.request{border:1px solid #ddd;padding:10px;margin:8px 0;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>👑 Admin Panel</h1>
+
+<div id="login">
+<input type="password" id="pin" placeholder="Admin PIN">
+<button class="btn" onclick="adminLogin()">Login</button>
+</div>
+
+<div id="panel" style="display:none">
+<h3>নতুন টুর্নামেন্ট বানান</h3>
+<input type="text" id="tName" placeholder="টুর্নামেন্ট নাম">
+<input type="number" id="tFee" placeholder="Entry Fee">
+<input type="number" id="tPrize" placeholder="Prize Money">
+<input type="number" id="tMax" placeholder="Max Player">
+<button class="btn" onclick="createTournament()">Create</button>
+
+<h3>Topup Request</h3>
+<div id="topupList"></div>
+
+<h3>Withdraw Request</h3>
+<div id="withdrawList"></div>
+
+<button class="btn" style="background:gray" onclick="window.location.href='index.html'">Back</button>
+</div>
+</div>
+
+<script>
+let requests = JSON.parse(localStorage.getItem('requests')) || {topup:[], withdraw:[]};
+let tournaments = JSON.parse(localStorage.getItem('tournaments')) || [];
+
+function adminLogin(){
+if(document.getElementById('pin').value === 'niyaaz4444'){
+document.getElementById('login').style.display='none';
+document.getElementById('panel').style.display='block';
+loadRequests();
+}else{alert('ভুল PIN')}
+}
+
+function createTournament(){
+let t = {
+name:document.getElementById('tName').value,
+fee:document.getElementById('tFee').value,
+prize:document.getElementById('tPrize').value,
+maxPlayers:document.getElementById('tMax').value,
+players:[]
+};
+tournaments.push(t);
+localStorage.setItem('tournaments', JSON.stringify(tournaments));
+alert('টুর্নামেন্ট বানানো হয়েছে');
+}
+
+function loadRequests(){
+document.getElementById('topupList').innerHTML = requests.topup.map((r,i)=>`
+<div class="request">${r.name} - ${r.amount} টাকা - Trx: ${r.trx}
+<button class="btn" onclick="approveTopup(${i})">Approve</button></div>`).join('');
+
+document.getElementById('withdrawList').innerHTML = requests.withdraw.map((r,i)=>`
+<div class="request">${r.name} - ${r.amount} টাকা - Num: ${r.num}
+<button class="btn btn-red" onclick="approveWithdraw(${i})">Paid</button></div>`).join('');
+}
+
+function approveTopup(i){
+let userData = JSON.parse(localStorage.getItem('kheloUser'));
+userData.balance += parseInt(requests.topup[i].amount);
+localStorage.setItem('kheloUser', JSON.stringify(userData));
+requests.topup.splice(i,1);
+localStorage.setItem('requests', JSON.stringify(requests));
+loadRequests();
+}
+
+function approveWithdraw(i){
+requests.withdraw.splice(i,1);
+localStorage.setItem('requests', JSON.stringify(requests));
+loadRequests();
+}
+</script>
+</body>
+</html>
